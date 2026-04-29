@@ -2,6 +2,11 @@
 
 This document describes the standard patterns for creating edit (create/update) and detail (view) pages in Rancher UI extensions. **Always** follow these patterns instead of implementing custom form handling or save logic.
 
+> **TypeScript & Composition API rules**:
+> - Normal Vue components (detail pages, standalone components) **must** use `<script setup lang="ts">` (Composition API).
+> - Edit pages that use the `CreateEditView` mixin **must** use Options API with `<script lang="ts">` — the mixin requires `mixins: [CreateEditView]` which is incompatible with `<script setup>`. Still use TypeScript in these files.
+> - Examples below use Options API because they demonstrate the `CreateEditView` mixin pattern. **Do not** copy the Options API style for non-edit components.
+
 ## Edit Page Pattern
 
 An edit page handles Create, Edit, and View modes for a resource.
@@ -20,7 +25,7 @@ An edit page handles Create, Edit, and View modes for a resource.
 import CreateEditView from '@shell/mixins/create-edit-view';
 import CruResource from '@shell/components/CruResource.vue';
 import NameNsDescription from '@shell/components/form/NameNsDescription';
-import LabeledInput from '@components/Form/LabeledInput/LabeledInput.vue';
+import { LabeledInput } from '@components/Form/LabeledInput';
 import LabeledSelect from '@shell/components/form/LabeledSelect.vue';
 import Tab from '@shell/components/Tabbed/Tab';
 import Tabbed from '@shell/components/Tabbed';
@@ -121,7 +126,7 @@ User clicks Save → CruResource emits "finish"
     → done() navigates to doneRoute
 ```
 
-To customize save behavior, override `saveOverride()` or register hooks with `registerBeforeSaveHook()` / `registerAfterSaveHook()`.
+To customize save behavior, override `actuallySave(url)` or register hooks with `registerBeforeHook()` / `registerAfterHook()`.
 
 ### CruResource props
 
@@ -130,11 +135,19 @@ To customize save behavior, override `saveOverride()` or register hooks with `re
 | `resource` | Object | The resource being edited (required) |
 | `mode` | String | `_CREATE`, `_EDIT`, or `_VIEW` (required) |
 | `errors` | Array | Error messages to display |
+| `errorsMap` | Object | Map to convert error messages to user-friendly text with icons |
 | `doneRoute` | String/Object | Route after save/cancel |
+| `description` | String | Description text shown below the form header |
 | `validationPassed` | Boolean | Enable/disable save button |
 | `canYaml` | Boolean | Show YAML editor toggle (default: true) |
 | `finishButtonMode` | String | Override save button label |
+| `cancelEvent` | Boolean | Emit `cancel` event instead of navigating (default: false) |
+| `showCancel` | Boolean | Show cancel button (default: true) |
+| `preventEnterSubmit` | Boolean | Prevent form submit on Enter key (default: false) |
+| `applyHooks` | Function | Hook apply function for BEFORE_SAVE / AFTER_SAVE |
 | `steps` | Array | Wizard steps configuration |
+| `namespaceKey` | String | Path to namespace in resource (default: `metadata.namespace`) |
+| `componentTestid` | String | Test identifier prefix (default: `form`) |
 
 ### CruResource slots
 
@@ -158,40 +171,27 @@ A detail page displays read-only information about a resource.
 ### Minimal detail page template
 
 ```vue
-<script>
+<script setup lang="ts">
 import { Banner } from '@components/Banner';
 import ResourceTabs from '@shell/components/form/ResourceTabs';
 import Tab from '@shell/components/Tabbed/Tab';
 
-export default {
-  name: 'MyResourceDetail',
-
-  components: {
-    Banner,
-    ResourceTabs,
-    Tab,
-  },
-
-  props: {
-    value: {
-      type:     Object,
-      required: true,
-    },
-  },
-};
+const props = defineProps<{
+  value: Record<string, any>;
+}>();
 </script>
 
 <template>
   <div>
     <ResourceTabs
-      :value="value"
+      :value="props.value"
       :side-tabs="true"
     >
       <template #before>
         <Banner
-          v-if="value.spec.someWarning"
+          v-if="props.value.spec?.someWarning"
           color="warning"
-          :label="value.spec.someWarning"
+          :label="props.value.spec.someWarning"
         />
       </template>
 
@@ -199,7 +199,7 @@ export default {
         <div class="row mb-20">
           <div class="col span-6">
             <span class="text-label">Status</span>
-            <span>{{ value.status.phase }}</span>
+            <span>{{ props.value.status?.phase }}</span>
           </div>
         </div>
       </Tab>
@@ -223,7 +223,7 @@ All form components support `mode` prop (`_CREATE`, `_EDIT`, `_VIEW`) and auto-d
 | Component | Import | Purpose |
 |-----------|--------|---------|
 | `NameNsDescription` | `@shell/components/form/NameNsDescription` | Name + namespace + description fields |
-| `LabeledInput` | `@components/Form/LabeledInput/LabeledInput.vue` | Text/number input |
+| `LabeledInput` | `@components/Form/LabeledInput` | Text/number input |
 | `LabeledSelect` | `@shell/components/form/LabeledSelect.vue` | Dropdown select |
 | `KeyValue` | `@shell/components/form/KeyValue` | Key-value pair editor |
 | `ArrayList` | `@shell/components/form/ArrayList` | Array/list editor |
@@ -275,6 +275,8 @@ The `CreateEditView` mixin from `@shell/mixins/create-edit-view` provides:
 | Method | Description |
 |--------|-------------|
 | `save(buttonDone, url)` | Standard save flow — calls `SteveModel.save()` |
+| `actuallySave(url)` | Performs the actual API call; override to customize save logic |
+| `conflict()` | Handles 409 conflicts; override to customize conflict resolution |
 | `done()` | Navigate to `doneRoute` |
 | `setErrors(errors)` | Set error messages for display |
 
@@ -284,7 +286,7 @@ Register hooks for custom pre/post save logic:
 
 ```js
 created() {
-  this.registerBeforeSaveHook(this.validate, 'my-validation');
-  this.registerAfterSaveHook(this.createRelated, 'create-related-resource');
+  this.registerBeforeHook(this.validate, 'my-validation');
+  this.registerAfterHook(this.createRelated, 'create-related-resource');
 },
 ```

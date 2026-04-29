@@ -10,38 +10,36 @@ Cards are added to Rancher via the `addCard` method.
 
 # addCard
 
-*(Rancher version v2.7.2)*
-
 This method adds a card element to the UI.
 
 Method:
 
 ```ts
-plugin.addCard(where: String, when: LocationConfig, options: Object);
+plugin.addCard(where: CardLocation | string, when: LocationConfig | string, options: Object);
 ```
+
+> When `when` is a plain string, it is treated as `{ resource: [string] }` shorthand.
 
 _Arguments_
 
 `where` string parameter admissable values for this method:
 
-| Key | Type | Rancher Version | Description |
-|---|---|---|---|
-|`CardLocation.CLUSTER_DASHBOARD_CARD`| String | v2.7.2 | Location for a card on the Cluster Dashboard page |
+| Key | Type | Description |
+|---|---|---|
+|`CardLocation.CLUSTER_DASHBOARD_CARD`| String | Location for a card on the Cluster Dashboard page |
 
 <br/>
 
 `when` Object admissable values:
 
-`LocationConfig` as described above for the [LocationConfig object](./common#locationconfig).
+`LocationConfig` as described above for the [LocationConfig object](location-config.md#locationconfig).
 
 <br/>
 <br/>
 
 ## CardLocation.CLUSTER_DASHBOARD_CARD options
 
-*(From Rancher version v2.7.2)*
-
-![Cluster Dashboard Card](../screenshots/cluster-cards.png)
+<!-- Screenshot: cluster dashboard card -->
 
 `options` config object. Admissable parameters for the `options` with `'CardLocation.CLUSTER_DASHBOARD_CARD'` are:
 

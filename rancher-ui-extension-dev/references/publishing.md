@@ -3,9 +3,9 @@
 There are currently two options for building and publishing a extensions:
 
 1. Building the Helm charts and necessary assets of an extension that can be committed into a Github or Helm repository.
-2. Building an [Extension Catalog Image](./advanced/air-gapped-environments) that can be pushed or mirrored into a container registry.
+2. Building an [Extension Catalog Image](https://extensions.rancher.io/extensions/advanced/air-gapped-environments) that can be pushed or mirrored into a container registry.
 
-As discussed in the [Getting Started](./extensions-getting-started#creating-a-release) section, we have established a [workflow](https://github.com/rancher/dashboard/tree/master/creators/extension/app/files/.github/workflows) using [Github reusable workflows](https://docs.github.com/en/actions/using-workflows/reusing-workflows), that automatically handles the build and publication of both the Helm charts and ECI into the Extension's GitHub repository. However, this workflow can be omitted for a more hands-on approach to publishing Extensions.
+As discussed in the [Getting Started](getting-started.md) section, we have established a [workflow](https://github.com/rancher/dashboard/tree/master/creators/extension/app/files/.github/workflows) using [Github reusable workflows](https://docs.github.com/en/actions/using-workflows/reusing-workflows), that automatically handles the build and publication of both the Helm charts and ECI into the Extension's GitHub repository. However, this workflow can be omitted for a more hands-on approach to publishing Extensions.
 
 > **WARNING:** When using the provided Github workflows, the base development app name (Found in the root level `package.json`) ___MUST___ be unique when compared with any extension packages found in `./pkg/*`. If an extension package name matches the base skeleton name the workflow will fail due to the "Parse Extension Name" step found in both the ["Build and Release Extension Charts"](https://github.com/rancher/dashboard/blob/422823e2b6868191b9bb33470e99e69ff058b72b/.github/workflows/build-extension-charts.yml#L59-L65) and ["Build and release Extension Catalog Image to registry"](https://github.com/rancher/dashboard/blob/422823e2b6868191b9bb33470e99e69ff058b72b/.github/workflows/build-extension-catalog.yml#L64-L70) workflows.
 
@@ -24,7 +24,7 @@ In order to have a Helm repository you will need to enable Github Pages on your 
 
 <div style={{textAlign: 'center'}}>
 
-![Repo Settings Tab](./screenshots/repo-settings-tab.png)
+<!-- Screenshot: repo-settings-tab -->
 
 </div>
 
@@ -32,7 +32,7 @@ In order to have a Helm repository you will need to enable Github Pages on your 
 
 <div style={{textAlign: 'center'}}>
 
-![Repo Pages Tab](./screenshots/repo-pages-tab.png)
+<!-- Screenshot: repo-pages-tab -->
 
 </div>
 
@@ -40,7 +40,7 @@ In order to have a Helm repository you will need to enable Github Pages on your 
 
 <div style={{textAlign: 'center'}}>
 
-![Repo Pages Dropdown](./screenshots/repo-pages-dropdown.png)
+<!-- Screenshot: repo-pages-dropdown -->
 
 </div>
 
@@ -173,7 +173,7 @@ The URL should be listed as: `https://<organization>.github.io/<repository>`
 
 Once the URL has been added to the repository list, the extension should appear within the Extensions page.
 
-![Apps Repositories Creation](./screenshots/app-repos.png)
+<!-- Screenshot: app-repos -->
 
 ## Publishing an Extension Catalog Image
 
@@ -277,13 +277,13 @@ Depending on your use case, there are multiple options on building and creating 
 - `build-extension-charts` - Builds the Helm charts and necessary assets that are then published to the specified branch (defaults to `gh-pages`).
   - The versioning of these builds is determined by the Extension Package `version` property found in `./pkg/<package-name>/package.json`
   - Find the reusable workflow file [here](https://github.com/rancher/dashboard/blob/master/.github/workflows/build-extension-charts.yml)
-- `build-extension-catalog` - Builds and publishes the [Extension Catalog Image](./advanced/air-gapped-environments) (ECI) into the specified registry (defaults to `ghcr.io`), for use with private repositories or air-gapped builds.
+- `build-extension-catalog` - Builds and publishes the [Extension Catalog Image](https://extensions.rancher.io/extensions/advanced/air-gapped-environments) (ECI) into the specified registry (defaults to `ghcr.io`), for use with private repositories or air-gapped builds.
   - An ECI contains the Helm charts and assets within the image, and is determined by the main Extension `version` property found in `./package.json`
   - Find the reusable workflow file [here](https://github.com/rancher/dashboard/blob/master/.github/workflows/build-extension-catalog.yml)
 
 By default, both of these actions are triggered by pushing into the `main` branch. This may not be your desired flow, and so you can modify the workflow file to fit your needs.
 
-> Note: Addition configuration information on the workflows can be found in the [Workflow Configuration](./advanced/workflow-configuration.md) section.
+> Note: Additional configuration information on the workflows can be found in the [Workflow Configuration](https://extensions.rancher.io/extensions/advanced/workflow-configuration) section.
 
 > Note: For more information on events that trigger workflows, follow the [Github Documentation](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows).
 
@@ -336,5 +336,5 @@ There are a few pipeline configuration options, mostly tied to the container reg
 
 The Pipeline will run automatically when a change to the root level `package.json` has been detected, which will first trigger the `check_version` stage to check for any version collisions within the specified Container Registry. If this stage is successful, the stage `build_catalog` will then build and release the ECI to the Container Registry.
 
-Once the ECI has been published to the Container Registry, it can then be imported into the Rancher UI by following the steps in the [Importing section](./advanced/air-gapped-environments#importing-the-extension-catalog-image).
+Once the ECI has been published to the Container Registry, it can then be imported into the Rancher UI by following the steps in the [Importing section](https://extensions.rancher.io/extensions/advanced/air-gapped-environments#importing-the-extension-catalog-image).
 

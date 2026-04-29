@@ -10,39 +10,37 @@ Actions are added to Rancher via the `addAction` method.
 
 ## addAction
 
-*(Rancher version v2.7.2)*
-
 This method adds a button/action to the UI.
 
 Method:
 
 ```ts
-plugin.addAction(where: String, when: LocationConfig, options: Object);
+plugin.addAction(where: ActionLocation | string, when: LocationConfig | string, options: Object);
 ```
+
+> When `when` is a plain string, it is treated as `{ resource: [string] }` shorthand.
 
 _Arguments_
 
 `where` string parameter admissable values for this method:
 
-| Key | Type | Rancher Version | Description |
-|---|---|---|---|
-|`ActionLocation.HEADER`| String | v2.7.2 | Location for an action on the Header of Rancher Dashboard |
-|`ActionLocation.TABLE`| String | v2.7.2 | Location for an action on a List View Table of Rancher Dashboard |
+| Key | Type | Description |
+|---|---|---|
+|`ActionLocation.HEADER`| String | Location for an action on the Header of Rancher Dashboard |
+|`ActionLocation.TABLE`| String | Location for an action on a List View Table of Rancher Dashboard |
 
 <br/>
 
 `when` Object admissable values:
 
-`LocationConfig` as described above for the [LocationConfig object](./common#locationconfig).
+`LocationConfig` as described above for the [LocationConfig object](location-config.md#locationconfig).
 
 <br/>
 <br/>
 
 ### ActionLocation.HEADER options
 
-*(From Rancher version v2.7.2)*
-
-![Header Actions](../screenshots/header-actions.png)
+<!-- Screenshot: header actions buttons -->
 
 `options` config object. Admissable parameters for the `options` with `'ActionLocation.HEADER'` are:
 
@@ -102,15 +100,13 @@ plugin.addAction(
 
 ### ActionLocation.TABLE options
 
-*(From Rancher version v2.7.2)*
-
 _INLINE TABLE ACTION_
 
-![inline table action](../screenshots/inline-table-action.png)
+<!-- Screenshot: inline table action -->
 
 _BULKABLE/GLOBAL TABLE ACTION_
 
-![bulkable table action](../screenshots/inline-and-bulkable.png)
+<!-- Screenshot: bulkable table action -->
 
 `options` config object. Admissable parameters for the `options` with `'ActionLocation.TABLE'` are:
 
@@ -120,7 +116,7 @@ _BULKABLE/GLOBAL TABLE ACTION_
 |`labelKey`| String | Same as "label" but allows for translation. Will superseed "label" |
 |`icon`| String | icon name (based on [rancher icons](https://rancher.github.io/icons/)) |
 |`svg`| Function | icon based on a SVG file which can be included using `@require` |
-|`divider`| Boolean | Shows a line separator (divider) in actions menu |
+|`divider`| Boolean | Shows a line separator (divider) in actions menu. *Note: not part of the TypeScript `Action` type but accepted at runtime* |
 |`multiple`| Boolean | Whether the action/button is bulkable (can be performed on multiple list items) |
 |`enabled`| Function | Whether the action/button is enabled or not |
 |`invoke`| Function | function executed when action/button is clicked |

@@ -334,4 +334,4 @@ To change the side‑menu entry for a product with the ID `myProduct`, add the f
    product:
      myProduct: My Product
    ```
-   This translation file should reside in your package’s localization directory (e.g., `./pkg/<extension-name>/l10n`). For more details, see the [Localization documentation](../../advanced/localization.md).
+   This translation file should reside in your package's localization directory (e.g., `./pkg/<extension-name>/l10n`). For more details, see the [Localization documentation](https://extensions.rancher.io/extensions/advanced/localization).

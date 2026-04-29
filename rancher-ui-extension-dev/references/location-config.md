@@ -6,23 +6,23 @@ The `where` defines which area of the UI the extension method will apply to and 
 
 The admissable string values for the `where` are:
 
-| Key | Type | Rancher Version | Description |
-|---|---|---|---|
-|`ActionLocation.HEADER`| String | 2.7.2 | Location for an action on the Header of Rancher Dashboard. Check [screenshot](./actions/#actionlocationheader-options) for location. |
-|`ActionLocation.TABLE`| String | 2.7.2 | Location for an action on a List View Table of Rancher Dashboard. Check [screenshot](./actions/#actionlocationtable-options) for location. |
-|`TabLocation.RESOURCE_SHOW_CONFIGURATION`| String | 2.12.6, 2.13.2, 2.14.0 | Location for a Tab on the "Show configuration" slide-in panel in Resource Detail page. Check [screenshot](./tabs/#tablocationresource_show_configuration-options) for location. |
-|`TabLocation.RESOURCE_CREATE_PAGE`| String | 2.12.6, 2.13.2, 2.14.0 | Location for a Tab on a Resource Create page. Check [screenshot](./tabs/#tablocationresource_create_page-options) for location. |
-|`TabLocation.RESOURCE_EDIT_PAGE`| String | 2.12.6, 2.13.2, 2.14.0 | Location for a Tab on a Resource Edit page. Check [screenshot](./tabs/#tablocationresource_edit_page-options) for location. |
-|`TabLocation.RESOURCE_DETAIL_PAGE`| String | 2.12.6, 2.13.2, 2.14.0 | Location for a Tab on a Resource Detail page. Check [screenshot](./tabs/#tablocationresource_detail_page-options) for location. |
-|`TabLocation.CLUSTER_CREATE_RKE2`| String | 2.13.0 | Location for a Tab on the Cluster Configuration area in Cluster Provisioning |
-|`TabLocation.OTHER`| String | 2.12.6, 2.13.2, 2.14.0 | Other Tab locations different than the ones specified above in order to cover different scenarios. Can be further specified with the appropriate `LocationConfig` params. |
-|`TabLocation.RESOURCE_DETAIL`| String | 2.7.2 (deprecated from 2.14.0) | Location for a Tab on a Resource Detail page. Check [screenshot](./tabs/#tablocationresource_detail-options) for location. |
-|`PanelLocation.DETAILS_MASTHEAD`| String | 2.7.2 | Location for a panel on the Details Masthead area of a Resource Detail page. Check [screenshot](./panels/#panellocationdetails_masthead-options) for location. |
-|`PanelLocation.DETAIL_TOP`| String | 2.7.2 | Location for a panel on the Detail Top area of a Resource Detail page. Check [screenshot](./panels/#panellocationdetail_top-options) for location. |
-|`PanelLocation.RESOURCE_LIST`| String | 2.7.2 | Location for a panel on a Resource List View page (above the table area). Check [screenshot](./panels#panellocationresource_list-options) for location. |
-|`PanelLocation.ABOUT_TOP`| String | 2.13.0 | Location for a panel on the About page. Check [screenshot](./panels#panellocationabout_top-options) for location. |
-|`CardLocation.CLUSTER_DASHBOARD_CARD`| String | 2.7.2 | Location for a card on the Cluster Dashboard page. Check [screenshot](./cards/#cardlocationcluster_dashboard_card-options) for location. |
-|`TableColumnLocation.RESOURCE`| String | 2.7.2 | Location for a table column on a Resource List View page. Check [screenshot](./table-columns/#tablecolumnlocationresource-options) for location. |
+| Key | Type | Description |
+|---|---|---|
+|`ActionLocation.HEADER`| String | Location for an action on the Header of Rancher Dashboard. See [actions.md](actions.md) for details. |
+|`ActionLocation.TABLE`| String | Location for an action on a List View Table of Rancher Dashboard. See [actions.md](actions.md) for details. |
+|`TabLocation.RESOURCE_SHOW_CONFIGURATION`| String | Location for a Tab on the "Show configuration" slide-in panel in Resource Detail page. See [tabs.md](tabs.md) for details. |
+|`TabLocation.RESOURCE_CREATE_PAGE`| String | Location for a Tab on a Resource Create page. See [tabs.md](tabs.md) for details. |
+|`TabLocation.RESOURCE_EDIT_PAGE`| String | Location for a Tab on a Resource Edit page. See [tabs.md](tabs.md) for details. |
+|`TabLocation.RESOURCE_DETAIL_PAGE`| String | Location for a Tab on a Resource Detail page. See [tabs.md](tabs.md) for details. |
+|`TabLocation.CLUSTER_CREATE_RKE2`| String | Location for a Tab on the Cluster Configuration area in Cluster Provisioning |
+|`TabLocation.OTHER`| String | Other Tab locations different than the ones specified above in order to cover different scenarios. Can be further specified with the appropriate `LocationConfig` params. |
+|`TabLocation.RESOURCE_DETAIL`| String | **Deprecated from v2.14.0.** Location for a Tab on a Resource Detail page. Use `TabLocation.OTHER` instead. |
+|`PanelLocation.DETAILS_MASTHEAD`| String | Location for a panel on the Details Masthead area of a Resource Detail page. See [panels.md](panels.md) for details. |
+|`PanelLocation.DETAIL_TOP`| String | Location for a panel on the Detail Top area of a Resource Detail page. See [panels.md](panels.md) for details. |
+|`PanelLocation.RESOURCE_LIST`| String | Location for a panel on a Resource List View page (above the table area). See [panels.md](panels.md) for details. |
+|`PanelLocation.ABOUT_TOP`| String | Location for a panel on the About page. See [panels.md](panels.md) for details. |
+|`CardLocation.CLUSTER_DASHBOARD_CARD`| String | Location for a card on the Cluster Dashboard page. See [cards.md](cards.md) for details. |
+|`TableColumnLocation.RESOURCE`| String | Location for a table column on a Resource List View page. See [table-columns.md](table-columns.md) for details. |
 
 
 ## LocationConfig
@@ -63,18 +63,18 @@ With this it's then possible to easily identify the parameters needed to populat
 
 The admissible parameters for the `LocationConfig` object are:
 
-| Key | Rancher Version | Type | Description |
-|---|---|---|---|
-|`product`| `v2.7.2` | Array | Array of the product identifier. Ex: `fleet`, `manager` (Cluster Management), `harvesterManager` (Virtualization Management), `explorer` (Cluster Explorer) or `home` (Homepage) |
-|`resource`| `v2.7.2` + `v2.8.0` | Array | Array of the identifier of the kubernetes resource to be bound to. Ex: `apps.deployment`, `storage.k8s.io.storageclass` or `secret` (v2.7.2). You can also define a wildcard, ex: `['*']`, which will match any resource page (v2.8.0)  |
-|`namespace`| `v2.7.2` | Array | Array of the namespace identifier. Ex: `kube-system`, `cattle-global-data` or `cattle-system` |
-|`path`| `v2.7.7` | Array | Array of objects that does matching for the `path` part of the url. Admissable properties for the object are: `urlPath` (string), `exact` (boolean, default or omission: `true`, which defines the type of match it does) and `endsWith` (boolean, defaults to false) .Ex: \{ `urlPath`: '/c/local/explorer/projectsnamespaces',  `exact`: true \} or \{ `urlPath`: 'explorer/projectsnamespaces',  `endsWith`: true \} |
-|`cluster`| `v2.7.2` | Array | Array of the cluster identifier. Ex: `local` |
-|`id`| `v2.7.2` | Array | Array of the identifier for a given resource. Ex: `deployment-unt6xmz` |
-|`mode`| `v2.7.2` + `v2.7.7` | Array | Array of modes which relates to the type of view on which the given enhancement should be applied. Admissible values are: `edit` (v2.7.2), `config` (v2.7.2), `detail` (v2.7.2), `list` (v2.7.2) and `create` (v2.7.7) |
-|`context`| `v2.7.2`| Object | Requirements set by the context itself. This is a key value object that must match the object provided where the feature is used. For instance if a ResourceTab should only include a tab given specific information where the ResourceTab is used. Ex `{ provider: "digitalocean" }` |
-| `queryParam`| `v2.7.2` | Object | This is a key value object that must match the url's query param key values |
-|`hash`| `v2.8.0` | Array | Array of strings for url hash identifiers, commonly used in Tabs Ex: On a details view of a `provisioning.cattle.io.cluster`, you have several tabs identified in the hash portion of the url such as `node-pools`, `conditions` and `related`  |
+| Key | Type | Description |
+|---|---|---|
+|`product`| Array | Array of the product identifier. Ex: `fleet`, `manager` (Cluster Management), `harvesterManager` (Virtualization Management), `explorer` (Cluster Explorer) or `home` (Homepage) |
+|`resource`| Array | Array of the identifier of the kubernetes resource to be bound to. Ex: `apps.deployment`, `storage.k8s.io.storageclass` or `secret`. You can also define a wildcard, ex: `['*']`, which will match any resource page |
+|`namespace`| Array | Array of the namespace identifier. Ex: `kube-system`, `cattle-global-data` or `cattle-system` |
+|`path`| Array | Array of objects that does matching for the `path` part of the url. Admissable properties for the object are: `urlPath` (string), `exact` (boolean, default or omission: `true`, which defines the type of match it does) and `endsWith` (boolean, defaults to false) .Ex: \{ `urlPath`: '/c/local/explorer/projectsnamespaces',  `exact`: true \} or \{ `urlPath`: 'explorer/projectsnamespaces',  `endsWith`: true \} |
+|`cluster`| Array | Array of the cluster identifier. Ex: `local` |
+|`id`| Array | Array of the identifier for a given resource. Ex: `deployment-unt6xmz` |
+|`mode`| Array | Array of modes which relates to the type of view on which the given enhancement should be applied. Admissible values are: `edit`, `config`, `detail`, `list`, `create` |
+|`context`| Object | Requirements set by the context itself. This is a key value object that must match the object provided where the feature is used. For instance if a ResourceTab should only include a tab given specific information where the ResourceTab is used. Ex `{ provider: "digitalocean" }` |
+| `queryParam`| Object | This is a key value object that must match the url's query param key values |
+|`hash`| Array | Array of strings for url hash identifiers, commonly used in Tabs Ex: On a details view of a `provisioning.cattle.io.cluster`, you have several tabs identified in the hash portion of the url such as `node-pools`, `conditions` and `related`  |
 
 ### LocationConfig Examples
 

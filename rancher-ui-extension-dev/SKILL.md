@@ -46,7 +46,7 @@ This skill helps develop Rancher Dashboard UI extensions. Extensions are package
 | Form wrapper | `CruResource` | `@shell/components/CruResource.vue` |
 | CRUD behavior | `CreateEditView` | `@shell/mixins/create-edit-view` |
 | Name/NS/Desc | `NameNsDescription` | `@shell/components/form/NameNsDescription` |
-| Text input | `LabeledInput` | `@components/Form/LabeledInput/LabeledInput.vue` |
+| Text input | `LabeledInput` | `@components/Form/LabeledInput` |
 | Dropdown | `LabeledSelect` | `@shell/components/form/LabeledSelect.vue` |
 | Key-value pairs | `KeyValue` | `@shell/components/form/KeyValue` |
 | Array/list | `ArrayList` | `@shell/components/form/ArrayList` |
@@ -54,7 +54,7 @@ This skill helps develop Rancher Dashboard UI extensions. Extensions are package
 | Tabs | `Tabbed` + `Tab` | `@shell/components/Tabbed` |
 | Detail tabs | `ResourceTabs` | `@shell/components/form/ResourceTabs` |
 
-Save flow: `CruResource @finish` → `CreateEditView.save()` → `SteveModel.save()` → API. Customize via `registerBeforeSaveHook()` / `registerAfterSaveHook()`.
+Save flow: `CruResource @finish` → `CreateEditView.save()` → `SteveModel.save()` → API. Customize via `registerBeforeHook()` / `registerAfterHook()` or override `actuallySave(url)`.
 
 **Read [references/edit-detail-patterns.md](references/edit-detail-patterns.md) before creating any edit or detail page.**
 
@@ -74,11 +74,24 @@ All UI enhancement methods follow the pattern: `plugin.<method>(where, when, opt
 |--------|------------------|
 | `addAction` | `ActionLocation.HEADER`, `ActionLocation.TABLE` |
 | `addTab` | `TabLocation.RESOURCE_DETAIL_PAGE`, `RESOURCE_EDIT_PAGE`, `RESOURCE_CREATE_PAGE`, `RESOURCE_SHOW_CONFIGURATION`, `CLUSTER_CREATE_RKE2`, `OTHER` |
-| `addPanel` | `PanelLocation.DETAILS_MASTHEAD`, `DETAIL_TOP`, `RESOURCE_LIST` |
+| `addPanel` | `PanelLocation.DETAILS_MASTHEAD`, `DETAIL_TOP`, `RESOURCE_LIST`, `ABOUT_TOP` |
 | `addCard` | `CardLocation.CLUSTER_DASHBOARD_CARD` |
-| `addColumn` | `TableColumnLocation.RESOURCE` |
+| `addTableColumn` | `TableColumnLocation.RESOURCE` |
+| `addTableHook` | `TableLocation.RESOURCE` |
 
-The `when` parameter is a **LocationConfig** object:
+Additional plugin methods (no `where`/`when` pattern):
+
+| Method | Purpose |
+|--------|---------|
+| `setHomePage(component)` | Set custom home page component |
+| `addUninstallHook(hook)` | Register cleanup on plugin uninstall |
+| `addStore(name, register, unregister)` | Register generic Vuex store |
+| `addDashboardStore(name, specifics, config, init?)` | Register dashboard-aware Vuex store |
+| `enableServerSidePagination(config)` | Enable SSP for specified resources |
+| `addModelExtension(type, clz)` | *(experimental)* Extend resource models |
+| `addNavHooks(hooks)` | Register enter/leave/login/logout hooks |
+
+The `when` parameter is a **LocationConfig** object (also accepts a plain string as shorthand for `{ resource: [string] }`):
 
 | Key | Type | Example |
 |-----|------|---------|
@@ -86,7 +99,12 @@ The `when` parameter is a **LocationConfig** object:
 | `resource` | Array | `['apps.deployment']` or `['*']` |
 | `cluster` | Array | `['local']` |
 | `namespace` | Array | `['kube-system']` |
-| `mode` | Array | `['edit', 'create', 'detail', 'list']` |
+| `id` | Array | `['pod-nxr5vm']` |
+| `mode` | Array | `['edit', 'create', 'detail', 'config', 'list']` |
+| `hash` | Array | `['node-pools', 'conditions']` |
+| `path` | Array | `[{ urlPath: '/c/local/explorer', exact: true }]` |
+| `queryParam` | Object | `{ type: 'digitalocean' }` |
+| `context` | Object | `{ provider: 'digitalocean' }` |
 
 ### Folder conventions
 
@@ -110,7 +128,9 @@ Set in `./pkg/<name>/package.json` under `rancher.annotations`:
 
 ## Reference map
 
-Reference docs are bundled under `references/`. Read the relevant file before implementing. For topics not bundled locally, use `fetch_content` with the online URL.
+Reference docs are bundled under `references/`. Read the relevant file before implementing. For topics not bundled locally, fetch the online URL.
+
+**Priority rules**: AGENTS.md rules (code style, boundaries) > this SKILL.md > bundled reference docs. Reference docs may contain JS or Options API examples from the upstream Rancher docs — treat them as API reference only. Always generate code in TypeScript with Composition API, except when `CreateEditView` mixin requires Options API (see below).
 
 ### Getting started & structure
 - [references/getting-started.md](references/getting-started.md) — Scaffolding, dev server, building, developer load
@@ -132,13 +152,13 @@ Reference docs are bundled under `references/`. Read the relevant file before im
 - [references/tabs.md](references/tabs.md) — addTab (all tab locations)
 - [references/panels.md](references/panels.md) — addPanel
 - [references/cards.md](references/cards.md) — addCard
-- [references/table-columns.md](references/table-columns.md) — addColumn
+- [references/table-columns.md](references/table-columns.md) — addTableColumn
 
 ### Publishing & compatibility
 - [references/publishing.md](references/publishing.md) — Helm chart & ECI publishing
 - [references/support-matrix.md](references/support-matrix.md) — Shell version support matrix
 
-### Online-only (use fetch_content)
+### Online-only (fetch the URL when needed)
 - https://extensions.rancher.io/extensions/usecases/top-level-product — Complete top-level product example
 - https://extensions.rancher.io/extensions/usecases/cluster-level-product — Complete cluster-level product example
 - https://extensions.rancher.io/extensions/advanced/stores — Custom Vuex stores
@@ -152,20 +172,20 @@ Reference docs are bundled under `references/`. Read the relevant file before im
 
 ### New extension
 
-1. Read `extensions-getting-started.md`
+1. Read [references/getting-started.md](references/getting-started.md)
 2. Scaffold: `npm init @rancher/extension@latest <name>`
 3. Create `index.ts`, `product.ts`, routing
 4. Run: `API=<URL> yarn dev`
 
 ### Add UI enhancement to existing views
 
-1. Read `api/common.md` for LocationConfig
+1. Read [references/location-config.md](references/location-config.md) for LocationConfig
 2. Read the specific API doc (actions/tabs/panels/cards/table-columns)
 3. Add the enhancement in `index.ts` using `plugin.add*()` methods
 4. Test via dev server
 
 ### Publish
 
-1. Read `publishing.md`
+1. Read [references/publishing.md](references/publishing.md)
 2. Set `rancher.annotations` in package.json
 3. Use GitHub workflow (tagged release) or `yarn publish-pkgs`

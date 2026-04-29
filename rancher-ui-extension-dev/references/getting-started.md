@@ -27,7 +27,7 @@ When creating extensions, it is important to match the version of the `@rancher/
 
 - **For Rancher `v2.10` or later:** Use the `latest` version of `@rancher/extension`.
 
-> Note: The development app references the Rancher dashboard code via the `@rancher/shell` npm module. Each version is bound to different Rancher versions. You can check the `shell` support matrix **[here](./support-matrix.md)**.
+> Note: The development app references the Rancher dashboard code via the `@rancher/shell` npm module. Each version is bound to different Rancher versions. You can check the `shell` support matrix in [support-matrix.md](support-matrix.md).
 
 ### Usage for `latest` tag
 
@@ -106,7 +106,7 @@ You should be able to open a browser at https://127.0.0.1:8005 and you'll get th
 
 ## Developing your first Extension
 
-To develop your first extension, you can check the documentation for the **[Extensions API](./api/overview.md)** to learn all the resources that an extension can use, or you can just follow the **[Usecases/Examples](./usecases/overview.md)** that we have included in our documentation for the most common usecases. Nevertheless, we will include a very quick guide below for you to follow.
+To develop your first extension, you can check the documentation for the [Extensions API](https://extensions.rancher.io/extensions/api/overview) to learn all the resources that an extension can use, or you can just follow the [Usecases/Examples](https://extensions.rancher.io/extensions/usecases/overview) that we have included in our documentation for the most common usecases. Nevertheless, we will include a very quick guide below for you to follow.
 
 ### Basic extension example
 
@@ -206,9 +206,9 @@ This will build the extension as a Vue library and the built extension will be p
 
 To enable Developer load in the UI, you should go to the user avatar in the top-right and go to `Preferences`. Under `Advanced Features`, check the `Enable Extension developer features` checkbox.
 
-![Preferences](./screenshots/preferences.png)
+<!-- Screenshot: preferences menu -->
 
-![Extension Developer Features](./screenshots/extension-developer-features.png)
+<!-- Screenshot: extension developer features checkbox -->
 
 Now we need to serve the built package locally by running the following:
 
@@ -228,11 +228,11 @@ Serving packages:
 
 Now jump back into the UI and bring in the slide-in menu (click on the hamburger menu in the top-left) and click on 'Extensions'.
 
-![Developer Load](./screenshots/dev-load.png)
+<!-- Screenshot: developer load -->
 
 Go to the three dot menu and select 'Developer load' - you'll get a dialog allowing you to load the extension into the UI.
 
-![Developer Load Modal](./screenshots/dev-load-modal.png)
+<!-- Screenshot: developer load modal -->
 
 In the top input box `Extension URL`, enter:
 
@@ -273,20 +273,20 @@ Open a web browser to https://127.0.0.1:8005 and you'll see that the Example nav
 
 ## Releasing your extension as a Helm Chart
 
-Creating a Release for your extension is the official avenue for loading extensions into any Rancher instance. As mentioned in the [introduction](./introduction.md), the extension can be packaged into a Helm chart and added as a Helm repository to be easily accessible from your Rancher Manager or it can even be published as an an Extension Catalog Image (container registry). You should check all the information related to Releasing/Publishing an extension [here](./publishing.md).
+Creating a Release for your extension is the official avenue for loading extensions into any Rancher instance. as mentioned in the [introduction](https://extensions.rancher.io/extensions/introduction), the extension can be packaged into a Helm chart and added as a Helm repository to be easily accessible from your Rancher Manager or it can even be published as an an Extension Catalog Image (container registry). You should check all the information related to Releasing/Publishing an extension [here](publishing.md).
 
-For the Getting Started guide, we will only focus on releasing your extension as a [Helm Chart](./publishing#publishing-an-extension-as-a-helm-chart). For that we recommend following the **[baked-in automated publish on Github](./publishing.md#helm-chart-automated-approach)** that we offer via Github workflows.
+For the Getting Started guide, we will only focus on releasing your extension as a [Helm Chart](publishing.md#publishing-an-extension-as-a-helm-chart). For that we recommend following the **[baked-in automated publish on Github](publishing.md#helm-chart-automated-approach)** that we offer via Github workflows.
 
-> Note: GitLab support is offered through leverging the ECI build. For configuration instructions, follow the setps in the [Gitlab Integration](./publishing#gitlab-integration) section.
+> Note: GitLab support is offered through leveraging the ECI build. For configuration instructions, follow the steps in the [Gitlab Integration](publishing.md#gitlab-integration) section.
 
 
 ### Release Prerequisites
 
-Check all the release prerequisites information [here](./publishing#release-prerequisites).
+Check all the release prerequisites information [here](publishing.md#release-prerequisites).
 
 ### Consuming the Helm chart
 
-Check all the information on how to consume the generated Helm Chart on Rancher [here](./publishing#consuming-the-helm-chart).
+Check all the information on how to consume the generated Helm Chart on Rancher [here](publishing.md#consuming-the-helm-chart).
 
 ## Wrap-up
 

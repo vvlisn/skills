@@ -1,0 +1,56 @@
+{
+  "skill_name": "rancher-ui-extension-dev",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a new Rancher UI extension called 'monitoring-extras' that adds a top-level product with a dashboard page showing cluster metrics summary.",
+      "expected_output": "A scaffolded extension with index.ts, product.ts, routing/extension-routing.ts, and a dashboard page component. Product uses inStore: 'management'. All files are TypeScript. Routing follows /<PRODUCT>/c/:cluster pattern.",
+      "files": [],
+      "expectations": [
+        "index.ts calls importTypes(plugin) and plugin.addProduct(require('./product'))",
+        "index.ts calls plugin.addRoutes() with routes from routing/extension-routing.ts",
+        "product.ts exports init() function using $extension.DSL(store, name) with product() call",
+        "product.ts uses inStore: 'management' for top-level product",
+        "routing/extension-routing.ts defines routes with meta containing product and cluster params",
+        "Route names follow the pattern 'product-c-cluster-*'",
+        "Dashboard page component uses <script setup lang=\"ts\"> (Composition API)",
+        "No raw HTML <input> or <select> elements in any component",
+        "All .vue files have <style lang=\"scss\" scoped>"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Add a custom tab to the Deployment detail page in Rancher that shows pod restart statistics. The tab should appear in Cluster Explorer for all clusters.",
+      "expected_output": "A plugin.addTab() call in index.ts with TabLocation.RESOURCE_DETAIL_PAGE, a LocationConfig targeting apps.deployment in the explorer product, and a Vue component for the tab content.",
+      "files": [],
+      "expectations": [
+        "Uses plugin.addTab() with TabLocation.RESOURCE_DETAIL_PAGE as the 'where' parameter",
+        "LocationConfig includes product: ['explorer'] and resource: ['apps.deployment']",
+        "Tab component uses <script setup lang=\"ts\"> (Composition API, not Options API)",
+        "Tab component receives the resource as a prop",
+        "No custom save logic or API calls in the tab component (read-only display)",
+        "Does NOT use raw HTML <table> — uses Rancher components for layout"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Create an edit page for a custom CRD 'myapp.example.com' in my extension. The form should have fields for name, namespace, replicas (number), and image (text). Support create and edit modes.",
+      "expected_output": "An edit/myapp.example.com.vue file using CruResource wrapper and CreateEditView mixin. Form uses Rancher components (LabeledInput, NameNsDescription). Save goes through the standard CreateEditView.save() flow.",
+      "files": [],
+      "expectations": [
+        "File is located at edit/myapp.example.com.vue (file name matches resource name)",
+        "Uses CruResource as the form wrapper component",
+        "Uses CreateEditView mixin (mixins: [CreateEditView])",
+        "Uses Options API with <script lang=\"ts\"> (because of CreateEditView mixin)",
+        "CruResource has :resource, :mode, :errors props and @finish=\"save\" event",
+        "Uses NameNsDescription component for name and namespace fields",
+        "Uses LabeledInput from @components/Form/LabeledInput/LabeledInput.vue for replicas and image fields",
+        "Does NOT implement a custom save button — relies on CruResource footer",
+        "Does NOT make direct API calls — save flow goes through CreateEditView.save() → SteveModel.save()",
+        "Does NOT use raw HTML <input>, <select>, or <textarea>",
+        "LabeledInput uses v-model binding to value.spec properties",
+        "Has :mode prop passed to all form components for view/edit state"
+      ]
+    }
+  ]
+}
