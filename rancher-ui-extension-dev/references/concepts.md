@@ -34,7 +34,7 @@ A "cluster-level product" inside the Rancher UI is a product that interacts with
 
 When you register a `product` using the example below:
 
-```
+```ts
 // registering a cluster-level product
 product({
   icon:    'gear',
@@ -46,6 +46,27 @@ product({
   }
 });
 ```
+
+**Real-world production example** — [Kubewarden](https://github.com/rancher/kubewarden-ui/blob/main/pkg/kubewarden/config/kubewarden.ts) registers a cluster-level product that appears inside Cluster Explorer with additional options:
+
+```ts
+product({
+  inStore:             'cluster',       // cluster-level
+  inExplorer:          true,             // surface it inside Cluster Explorer
+  icon:                'kubewarden',
+  removeable:          false,            // user cannot remove/hide the product from the side-menu
+  showNamespaceFilter: true              // show the namespace picker in the top bar
+});
+```
+
+Optional fields worth knowing for cluster-level products:
+
+| Field | Purpose |
+|---|---|
+| `inExplorer: true` | Register the product as a section inside **Cluster Explorer** rather than as a standalone top-level entry. |
+| `removeable: false` | Prevent the user from hiding the product via the side-menu customization dialog. |
+| `showNamespaceFilter: true` | Display the global namespace filter dropdown when this product is active. |
+| `showClusterSwitcher: false` | Hide the cluster switcher (rarely needed for cluster-level products). |
 
 You will be registering a new app/product that only appears in the context of "Cluster explorer", like:
 

@@ -60,4 +60,19 @@ Each extension package has the ability to customize certain aspects when it come
 
 These annotations allow you to specify compatibility with Kubernetes, Rancher Manager, the Extensions API, and the Rancher UI version by relying on [semver ranges](https://www.npmjs.com/package/semver/v/6.3.0#ranges). As well as version compatibility, you can also specify a Display Name for the Extension package as it appears on the "Extensions" page within the UI.
 
+## Community-convention folders (non-magic)
+
+These are **not** shell-recognized magic folders but appear consistently in production extensions (verified against [`rancher-ai-ui`](https://github.com/rancher/rancher-ai-ui/tree/main/pkg/rancher-ai-ui)). The bundled `scripts/init-extension.sh` creates them empty (with `.gitkeep`) so future code has a predictable landing spot:
+
+| Folder / file | Purpose |
+|---|---|
+| `assets/` | Icons and static resources; `package.json.icon` points here (`extension-icon.svg`). |
+| `components/` | Extension-internal Vue components. |
+| `composables/` | Composition API composables (`useXxx.ts`). |
+| `store/` | Vuex modules registered via `plugin.addDashboardStore`. |
+| `utils/` | Module-local helpers, pure functions, constants. |
+| `types.ts` | Single file for module-level TypeScript interfaces & label constants. |
+
+⚠️ Empty **magic** folders (`chart/`, `cloud-credential/`, `content/`, `machine-config/`, `promptRemove/`, `windowComponents/`, `dialog/`, `formatters/`) are **not** created by the initializer — add them only when the corresponding capability is actually implemented. The scaffold does preserve `detail/`, `edit/`, `list/`, `models/` (empty by default) because those are the most common CRUD entry points.
+
 

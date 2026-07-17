@@ -7,9 +7,11 @@
       "expected_output": "A scaffolded extension with index.ts, product.ts, routing/extension-routing.ts, and a dashboard page component. Product uses inStore: 'management'. All files are TypeScript. Routing follows /<PRODUCT>/c/:cluster pattern.",
       "files": [],
       "expectations": [
-        "index.ts calls importTypes(plugin) and plugin.addProduct(require('./product'))",
-        "index.ts calls plugin.addRoutes() with routes from routing/extension-routing.ts",
-        "product.ts exports init() function using $extension.DSL(store, name) with product() call",
+        "index.ts calls importTypes(plugin) at the top of the register() function",
+        "index.ts uses require('./product') (NOT import product from './product') because the shell runtime looks up the .init property on the module object; a default-exported function has no .init and is silently ignored",
+        "index.ts calls plugin.addRoutes() with the default export of routing/extension-routing.ts",
+        "product.ts uses NAMED export function init(...) (not export default) and calls $extension.DSL(store, name) followed by product() for side-menu registration",
+        "routing/extension-routing.ts uses RouteRecordRaw from vue-router (vue-router v4 renamed RouteConfig -> RouteRecordRaw)",
         "product.ts uses inStore: 'management' for top-level product",
         "routing/extension-routing.ts defines routes with meta containing product and cluster params",
         "Route names follow the pattern 'product-c-cluster-*'",
@@ -44,12 +46,104 @@
         "Uses Options API with <script lang=\"ts\"> (because of CreateEditView mixin)",
         "CruResource has :resource, :mode, :errors props and @finish=\"save\" event",
         "Uses NameNsDescription component for name and namespace fields",
-        "Uses LabeledInput from @components/Form/LabeledInput/LabeledInput.vue for replicas and image fields",
+        "Uses LabeledInput imported from @components/Form/LabeledInput/LabeledInput.vue for replicas and image fields",
         "Does NOT implement a custom save button — relies on CruResource footer",
         "Does NOT make direct API calls — save flow goes through CreateEditView.save() → SteveModel.save()",
         "Does NOT use raw HTML <input>, <select>, or <textarea>",
         "LabeledInput uses v-model binding to value.spec properties",
         "Has :mode prop passed to all form components for view/edit state"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "In my existing 'monitoring-extras' extension, add a panel above the Deployment list showing a warning banner about pod restart thresholds. Do not touch anything else in index.ts.",
+      "expected_output": "A single plugin.addPanel(PanelLocation.RESOURCE_LIST, ...) call appended to index.ts, plus a new panel Vue component. All existing addProduct/addRoutes calls remain unchanged.",
+      "files": [],
+      "expectations": [
+        "Adds exactly one plugin.addPanel() call using PanelLocation.RESOURCE_LIST",
+        "PanelLocation is imported from @shell/core/types",
+        "LocationConfig contains resource: ['apps.deployment']",
+        "options.component uses dynamic import: () => import('./panels/...')",
+        "Existing plugin.addProduct / plugin.addRoutes calls in index.ts are not modified or reordered",
+        "Panel component uses <script setup lang=\"ts\"> (Composition API)"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "My extension crashes at load with `TypeError: Cannot read properties of undefined (reading 'DSL')`. What's wrong and how do I fix it?",
+      "expected_output": "Identifies that $extension.DSL(store, name) in product.ts is being called with an undefined store, most commonly because init(plugin, args) did not destructure store from args or the plugin was registered before the store was ready. Provides the corrected init signature.",
+      "files": [],
+      "expectations": [
+        "Names product.ts as the file to inspect",
+        "Points at $extension.DSL(store, name) as the failing call site",
+        "Explains that 'store' is undefined and shows the correct init(plugin, { store }) destructuring",
+        "Does not suggest reinstalling dependencies or clearing caches as the primary fix"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "Add a top-level product side-menu entry with a custom icon. The user tried `virtualType({ labelKey, name, route, icon: 'gear', weight: 100 })` and got TS2353.",
+      "expected_output": "Explains that `icon` is not a valid key on virtualType. Icons are set on the product itself via `product({ icon: 'gear', ... })`. For ordering, use `weightType()` / `weightGroup()` \u2014 not inline `weight` on virtualType (which happens to be accepted at runtime but is not part of the public TS type).",
+      "files": [],
+      "expectations": [
+        "States that `icon` is NOT a valid key on virtualType (only on product)",
+        "Cites TS2353 as the compile-time signal that surfaces the mistake",
+        "Points at $extension.DSL(store, name).product({ icon: '...' }) as the correct place to set the icon",
+        "Recommends weightType()/weightGroup() over inline `weight` on virtualType for side-menu ordering",
+        "Notes the runtime accepts unknown keys via getTree obj spread, so the absence of a TS error is not proof of validity"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "My route renders the shell 404 page when I navigate to it, even though the route is registered.",
+      "expected_output": "Guides the user to verify (1) the route `name` matches the `to.name` in product({...}) and the side-menu registration, and (2) inStore matches product scope. Adding `meta.pkg` is a last-resort in complex setups \u2014 most official examples omit `pkg` and render fine.",
+      "files": [],
+      "expectations": [
+        "First checks route `name` vs product({ to.name }) match",
+        "Next checks side-menu registration references the same route name",
+        "Next checks inStore in product() matches the route meta (management vs cluster)",
+        "Treats adding meta.pkg as a last-resort workaround, not the first fix",
+        "Does not claim `pkg` is required"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "Show me the canonical Rancher extension index.ts entry file.",
+      "expected_output": "Uses require('./product') and require('./package.json') for the shell runtime property-lookup pattern, and ESM `import extensionRouting from './routing/extension-routing'` for routes. Product init is a NAMED export (never default).",
+      "files": [],
+      "expectations": [
+        "plugin.addProduct(require('./product')) \u2014 uses require, NOT ESM import (shell reads .init property; default import would bind to the function and load silently as no-op)",
+        "plugin.metadata = require('./package.json') \u2014 uses require for portability across bundlers",
+        "plugin.addRoutes(routes) \u2014 uses ESM `import routes from './routing/extension-routing'` (idiomatic; both styles work)",
+        "product.ts exports `function init` as a NAMED export (not default)"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "My extension has a list view that fetches all Pods with `findAll`. On a cluster with 10,000+ pods the page hangs for seconds and memory balloons. How do I fix this while keeping backwards compatibility?",
+      "expected_output": "Identifies that from Rancher v2.12.0 Steve API supports Server-Side Pagination (SSP), gated by the `ui-sql-cache` feature flag. Advises probing per-type via `store.getters['cluster/paginationEnabled'](POD)` and branching: use `findPage` under SSP-on with filter/pagination opts, keep `findAll` as fallback under SSP-off. Notes both flag states must be manually tested.",
+      "files": [],
+      "expectations": [
+        "Names Server-Side Pagination (SSP) and the `ui-sql-cache` feature flag",
+        "Recommends probing `store.getters['cluster/paginationEnabled'](POD)` (or `management/paginationEnabled` for management-scoped resources) before choosing the code path",
+        "Under SSP-on dispatches `cluster/findPage` with filters/pagination opts (from `shell/types/store/pagination.types.ts` FilterArgs)",
+        "Under SSP-off keeps `findAll` as the fallback branch",
+        "Explicitly calls out that BOTH flag states must be manually tested before shipping",
+        "Does NOT recommend using `findPage` unconditionally without the paginationEnabled probe",
+        "Notes SSP only applies to Steve API (/v1/*), not Norman (/v3/*) or native Kube (/apis/*)"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "Add a form field to my extension's edit page where the user picks a Secret from the current namespace. The extension needs to work on clusters with tens of thousands of secrets.",
+      "expected_output": "Uses `ResourceLabeledSelect` (NOT `LabeledSelect`), configured via the `paginatedResourceSettings` prop to fetch a paginated slice of secrets filtered by the target namespace. Cites `shell/components/form/SecretSelector.vue` as the reference implementation and notes the component handles both SSP-on and SSP-off transparently.",
+      "files": [],
+      "expectations": [
+        "Uses `ResourceLabeledSelect` (NOT `LabeledSelect`)",
+        "Passes `paginatedResourceSettings` prop configured with the resource type (SECRET) and namespace filter",
+        "Does NOT implement client-side filtering or client-side full-list fetching",
+        "References `shell/components/form/SecretSelector.vue` or `shell/chart/rancher-backup/S3.vue` as the pattern source",
+        "Notes ResourceLabeledSelect works transparently under both `ui-sql-cache` on and off"
       ]
     }
   ]

@@ -99,8 +99,6 @@ export function init($extension: IPlugin, store: any) {
     }
   });
 
-  
-
   // creating a custom page
   virtualType({
     labelKey: 'some.translation.key',
@@ -124,6 +122,49 @@ export function init($extension: IPlugin, store: any) {
 ```
 
 One above example we are registering 2 pages: a resource page called `YOUR_K8S_RESOURCE_NAME` and a custom page called `CUSTOM_PAGE_NAME`. These need to be reflected in the routes definition that is provided to the `addRoutes` method.
+
+#### `configureType(type, options)` — supported keys
+
+Authoritative source: `@rancher/shell/store/type-map.js` (see the `configureType` block, lines ~90–111).
+
+| Key | Type | Purpose |
+|---|---|---|
+| `isCreatable` / `isEditable` / `isRemovable` | boolean | Enable/disable each CRUD action even if the schema allows it. |
+| `showState` / `showAge` | boolean | Show state / age columns and masthead. |
+| `showConfigView` / `showListMasthead` / `resourceEditMasthead` | boolean | Toggle masthead pieces. |
+| `canYaml` | boolean | Enable the YAML editor. |
+| `resource` / `resourceDetail` / `resourceEdit` | string | Override the resource used for ResourceDetail / its detail / its edit component. |
+| `customRoute` | RouteLocationRaw | Override the route this type maps to (see example above). |
+| `depaginate` | boolean | Depaginate list requests. |
+| `notFilterNamespace` | string[] | Namespaces exempt from the namespace filter. |
+| `localOnly` | boolean | Hide type from nav/search on downstream clusters. |
+| `product` | string | Restrict these options to a specific product (**required in Rancher 2.15+**). |
+| `custom` | any | Consumer-defined free-form data. |
+
+> ⚠️ `icon` and `weight` are **not** supported on `configureType`. Use [`virtualType`](#virtualtypeobj--supported-keys) if you need per-entry visuals; use [`weightType()`](side-menu.md#side-menu-ordering-weighttype-and-weightgroup) for ordering.
+
+#### `virtualType(obj)` — supported keys
+
+Authoritative source: `@rancher/shell/store/type-map.js` — the `virtualType` comment (line ~52) plus the `getTree()` push shape (lines ~775–786) that reads the object at runtime.
+
+| Key | Type | Required | Purpose |
+|---|---|---|---|
+| `name` | string | **yes** | Unique identifier across virtual types (used as the side-menu entry id). |
+| `labelKey` | string | — | i18n key for the side-menu label (preferred over `label`). |
+| `label` / `labelDisplay` | string | — | Static label fallback. |
+| `route` | RouteLocationRaw | — | Target route. `route.params.cluster` / `product` are injected automatically. |
+| `weight` | number | — | Sort weight — higher shows first. Runtime reads `typeObj.weight` at `getTree` L784. |
+| `namespaced` | boolean | — | Marks the entry as namespaced. |
+| `overview` | boolean | — | Renders under the "Overview" bucket. |
+| `mode` / `exact` / `exact-path` | — | — | Router matching hints. |
+
+> ⚠️ **`icon` is NOT a valid key on `virtualType`.** Adding it fails to compile with `TS2353: 'icon' does not exist in type 'ConfigureVirtualTypeOptions'`. Icons live on the product itself — pass `icon` inside `product({ ... })`; individual side-menu entries do not accept icons.
+>
+> ⚠️ **Type-vs-runtime gap on `weight`.** The TypeScript definition `ConfigureVirtualTypeOptions` may omit `weight`, so passing it can compile silently but is legal at runtime (`getTree` reads it directly). The **stable public API for ordering is [`weightType()` / `weightGroup()`](side-menu.md#side-menu-ordering-weighttype-and-weightgroup)**; prefer them over inline `weight` unless you know you need a per-instance override.
+
+#### `basicType([names], group?)` — ordering
+
+> 📌 **Array order does NOT determine side-menu order.** The final ordering is decided by [`weightType()` / `weightGroup()`](side-menu.md#side-menu-ordering-weighttype-and-weightgroup) (higher weight → higher position). Without explicit weights, entries fall back to alphabetical.
 
 Please note that for a Top-level product, routing follows a defined pattern:
 

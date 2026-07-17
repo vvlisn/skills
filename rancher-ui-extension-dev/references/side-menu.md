@@ -79,6 +79,8 @@ export function init($extension: IPlugin, store: any) {
 
 On the above example we are creating two side menu entries on a "root" level for your `YOUR_K8S_RESOURCE_NAME` and `CUSTOM_PAGE_NAME` pages. 
 
+> 📌 **Array order does NOT determine side-menu order.** The order in which names are passed to `basicType([...])` is irrelevant at render time — the final ordering is decided by [`weightType()` / `weightGroup()`](#side-menu-ordering-weighttype-and-weightgroup) (higher weight → higher position). Without explicit weights, entries fall back to alphabetical.
+
 Menu entries can also be grouped under a common "folder/group" in the side menu. For that the `basicType` takes an additional parameter which will be the name for the folder/group" in the side-menu. An example of the grouping as a follow-up on the example above would be: 
 
 ```ts
